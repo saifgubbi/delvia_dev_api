@@ -1,0 +1,24 @@
+{
+  "name": "abrl",
+  "version": "1.0.0",
+  "description": "delvia project",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "assert": "^1.4.1",
+    "body-parser": "^1.18.3",
+    "compression": "^1.7.3",
+    "consolidate": "^0.15.1",
+    "cookie-parser": "^1.4.3",
+    "express": "^4.16.3",
+    "helmet": "^3.13.0",
+    "mongodb": "^2.2.33",
+    "morgan": "^1.9.0",
+    "serve-favicon": "^2.5.0"
+  }
+}
