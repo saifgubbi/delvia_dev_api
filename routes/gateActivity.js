@@ -196,7 +196,7 @@ async function getExitSummary(req, res) {
 	}
 }
 /**********************************************************************************/
-async function getExitSummary(req, res) {
+async function insertData(req, res) {
 	try {
 		let db = await DB.Get();		
 		db.collection("gateActivity").insertOne(req.body, function (err, result) {
