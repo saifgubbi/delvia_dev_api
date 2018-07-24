@@ -43,6 +43,7 @@ async function getGateSummary(req, res) {
 		let db = await DB.Get();
 		let filter = {};
 		let gate = '';
+		let 
 		if (req.query.gate) {
 			if (req.query.gate === 'All') {
 			}
@@ -57,8 +58,8 @@ async function getGateSummary(req, res) {
 			{ $match: filter },
 			{
 				"$group": {
-					"_id": {
-						"hour": { "$add": [{ "$hour": { "$add": [new Date(0), "$toTs", 19800] } }, 1] },
+					"_id": {						
+						"hour" :{ "$add": [{ "$hour": { "$add": [new Date(0),{"$multiply":["$toTs",1000]},19800000] } }, 1] },
 						"gate": "$gate"
 					},
 					"totalEntry": { "$sum": "$entry" },
@@ -112,7 +113,7 @@ async function getEntrySummary(req, res) {
 			{
 				"$group": {
 					"_id": {
-						"hour": { "$add": [{ "$hour": { "$add": [new Date(0), "$toTs", 19800] } }, 1] },
+						"hour" :{ "$add": [{ "$hour": { "$add": [new Date(0),{"$multiply":["$toTs",1000]},19800000] } }, 1] },
 						"gate": "$gate"
 					},
 					"totalEntry": { "$sum": "$entry" },
@@ -164,7 +165,7 @@ async function getExitSummary(req, res) {
 			{
 				"$group": {
 					"_id": {
-						"hour": { "$add": [{ "$hour": { "$add": [new Date(0), "$toTs", 19800] } }, 1] },
+						"hour" :{ "$add": [{ "$hour": { "$add": [new Date(0),{"$multiply":["$toTs",1000]},19800000] } }, 1] },
 						"gate": "$gate"
 					},
 					"totalExit": { "$sum": "$exit" },
@@ -196,9 +197,59 @@ async function getExitSummary(req, res) {
 	}
 }
 /**********************************************************************************/
+async function getMallSummary(req, res) {
+	try {
+		let db = await DB.Get();
+		let filter = {};
+		let gate = '';
+		if (req.query.gate) {
+			if (req.query.gate === 'All') {
+			}
+			else {
+				filter.gate = { $eq: req.query.gate };
+			}
+		}
+		filter.fromTs = { $gt: parseInt(req.query.fromTs) };
+		filter.toTs = { $lt: parseInt(req.query.toTs) };
+		console.log(filter);
+		db.collection('gateActivity').aggregate([
+			{ $match: filter },
+			{
+				"$group": {
+					"_id": {
+						"hour" :{ "$add": [{ "$hour": { "$add": [new Date(0),{"$multiply":["$toTs",1000]},19800000] } }, 1] }
+					},
+					"totalExit": { "$sum": "$exit" },
+					"totalEntry": { "$sum": "$entry" },
+				}
+			},
+			{
+				"$group": {
+					"hours": {
+						"$push": {
+							"hour": "$_id.hour",
+							"totalExit": "$totalExit",
+							"totalEntry": "$totalEntry",
+						}
+					}
+				}
+			}
+		]).toArray(function (err, result) {
+			console.log(result);
+			res.json(result);
+		});
+
+	}
+	catch (err) {
+		console.log(err)
+		res.status(500).json({ err: err });
+	}
+}
+/**********************************************************************************/
+
 async function insertData(req, res) {
 	try {
-		let db = await DB.Get();		
+		let db = await DB.Get();
 		db.collection("gateActivity").insertOne(req.body, function (err, result) {
 			if (err) {
 				res.json({ status: "fail" });
