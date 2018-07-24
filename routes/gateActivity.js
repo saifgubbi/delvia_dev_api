@@ -18,6 +18,9 @@ router.get('/exitSummary', function (req, res) {
 	getExitSummary(req, res);
 });
 
+router.get('/mallSummary', function (req, res) {
+	getMallSummary(req, res);
+});
 router.post('/gateActivity', function (req, res) {
 	insertData(req, res);
 });
@@ -277,5 +280,5 @@ async function insertData(req, res) {
 // 			db.close();
 // 		});
 // //	});
-/************************************************************************************/
-
+/************************************************************
+************************/

@@ -8,7 +8,7 @@ var compression = require('compression')
 var helmet = require('helmet')
 
 global.__base = __dirname + '/';
-global.rowLimit = "TOP 200";
+//global.rowLimit = "TOP 200";
 
 var routes = require('./routes/index');
 var app = express();
@@ -43,7 +43,7 @@ app.use(compression())
 app.use(helmet())
 
 app.use('/', routes);
-app.use('/api', require('./routes'));
+app.use('/', require('./routes'));
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
