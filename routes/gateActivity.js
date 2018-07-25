@@ -6,6 +6,10 @@ router.get('/all', function (req, res) {
 	getData(req, res);
 });
 
+router.get('/allGates', function (req, res) {
+	getGatesData(req, res);
+});
+
 router.get('/gateSummary', function (req, res) {
 	getGateSummary(req, res);
 });
@@ -21,7 +25,7 @@ router.get('/exitSummary', function (req, res) {
 router.get('/mallSummary', function (req, res) {
 	getMallSummary(req, res);
 });
-router.post('/gateActivity', function (req, res) {
+router.post('/', function (req, res) {
 	insertData(req, res);
 });
 
@@ -41,12 +45,39 @@ async function getData(req, res) {
 	}
 }
 /**********************************************************************************/
+async function getGatesData(req, res) {
+	try {
+		let db = await DB.Get();
+		let resultArr=[];
+		db.collection('gateActivity').aggregate( [ { $group : { _id : "$gate" }} ] ).toArray(function (err, result) {
+		//\db.collection('gateActivity').find().toArray(function (err, result) {
+			console.log(result);
+			if (result.length != 0)
+			{
+				
+				result.forEach(function (row)
+				{
+					let objArr= {};
+					objArr.label=row._id;
+					objArr.value=row._id;
+                    resultArr.push(objArr);
+				});
+			}
+			res.json(resultArr);
+		});
+	}
+	catch (err) {
+		console.log(err)
+		res.status(500).json({ err: err });
+	}
+}
+/**********************************************************************************/
+
 async function getGateSummary(req, res) {
 	try {
 		let db = await DB.Get();
 		let filter = {};
 		let gate = '';
-		let 
 		if (req.query.gate) {
 			if (req.query.gate === 'All') {
 			}
@@ -212,8 +243,8 @@ async function getMallSummary(req, res) {
 				filter.gate = { $eq: req.query.gate };
 			}
 		}
-		filter.fromTs = { $gt: parseInt(req.query.fromTs) };
-		filter.toTs = { $lt: parseInt(req.query.toTs) };
+		filter.fromTs = { $gte: parseInt(req.query.fromTs) };
+		filter.toTs = { $lte: parseInt(req.query.toTs) };
 		console.log(filter);
 		db.collection('gateActivity').aggregate([
 			{ $match: filter },
@@ -224,17 +255,6 @@ async function getMallSummary(req, res) {
 					},
 					"totalExit": { "$sum": "$exit" },
 					"totalEntry": { "$sum": "$entry" },
-				}
-			},
-			{
-				"$group": {
-					"hours": {
-						"$push": {
-							"hour": "$_id.hour",
-							"totalExit": "$totalExit",
-							"totalEntry": "$totalEntry",
-						}
-					}
 				}
 			}
 		]).toArray(function (err, result) {
